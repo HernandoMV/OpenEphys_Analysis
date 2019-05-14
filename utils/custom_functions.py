@@ -123,7 +123,7 @@ def translateTrace(trace, traceFrames, samplingfreq, sToZero):
 
 def parseTitlesForDates(expTitles):
     '''
-    Parse the titles of open ephys to get only the data
+    Parse the titles of open ephys to get only the dates
     :param expTitles: list of titles of size X
     :return: list of dates of size X
     '''
@@ -134,6 +134,20 @@ def parseTitlesForDates(expTitles):
         
     return dates
 
+
+def parseTitlesForProtocol(expTitles):
+    '''
+    Parse the titles of open ephys to get only the protocol used
+    Titles require format: X_X_X_X_protocol_X
+    :param expTitles: list of titles of size s
+    :return: list of dates of size s
+    '''
+    protocols = []
+    for title in expTitles:
+        # split by underscore and select fifth element
+        protocol = title.split('_')[4]
+        protocols.append(protocol)
+    return protocols
 
 
 def timeDifferences(listOfDates):
