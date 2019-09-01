@@ -1,4 +1,4 @@
-# Functions to support the analysis of LFP
+# Functions to support the analysis of ephys data
 # Hernando Martinez Vergara
 # December 2018
 
@@ -23,47 +23,46 @@ def getFirstPulses(pulsevector, timedif):
     :return: 1D array of time stamps.
     """
     # calculate the difference between elements
-    difvector = [j-i for i, j in zip(pulsevector[:-1], pulsevector[1:])]
+    difvector = [j - i for i, j in zip(pulsevector[:-1], pulsevector[1:])]
     # add a 'fake' one at the beginning to compensate for the reduction of elements
     # and include the first element
-    difvector = [timedif+1] + difvector
-    
+    difvector = [timedif + 1] + difvector
+
     # get the indeces of those bigger than the condition
-    idx = [i for i,v in enumerate(difvector) if v > timedif]
-    
+    idx = [i for i, v in enumerate(difvector) if v > timedif]
+
     # return the vector
     return pulsevector[idx]
-
 
 
 def alignTrace(trace, times, aligntimes, interval, samplingfreq):
     """
     Get a matrix of rows of events aligned to some time,
     spanning an interval
-    :param trace: list of 1D arrays of x size (multiple traces of events)    
+    :param trace: list of 1D arrays of x size (multiple traces of events)
     :param times: 1D array of x size (times associated to traces)
     :param aligntimes: time events to align to
     :param interval: list of two elements with limits defining
     the length of the aligned traces. In seconds.
     :param samplingfreq: in Hz, the frequency of sampling
-    :return: list of 2D arrays of time stamps. In rows the traces, 
+    :return: list of 2D arrays of time stamps. In rows the traces,
     in columns the aligned times.
     """
     # find indexes in times of aligntimes values
     timeindexes = np.zeros(len(aligntimes))
     for i in range(len(timeindexes)):
         timeindexes[i] = np.where(times == aligntimes[i])[0]
-    #convert it to integers
+    # convert it to integers
     timeindexes = timeindexes.astype(int)
-    
+
     # calculate the number of events to include in each trace
     # convert the interval in seconds to bins using the sampling rate
     ev_limits = samplingfreq * interval
-    ev_vector =  range(int(ev_limits[0]), int(ev_limits[1]))
-    
+    ev_vector = range(int(ev_limits[0]), int(ev_limits[1]))
+
     # create a list that will contain one array for each channel
     aligneddata = [None] * len(trace)
-    
+
     for j in range(len(aligneddata)):
         # create a matrix of the desired size
         alignedmatrix = np.zeros((len(aligntimes), len(ev_vector)))
@@ -71,13 +70,12 @@ def alignTrace(trace, times, aligntimes, interval, samplingfreq):
         # populate the matrix with the trace parts
         for i in range(alignedmatrix.shape[0]):
             eventsToSave = ev_vector + timeindexes[i]
-            alignedmatrix[i,] = trace[j][eventsToSave]
+            alignedmatrix[i, ] = trace[j][eventsToSave]
 
         # append it to the list
         aligneddata[j] = alignedmatrix
-    
-    return aligneddata
 
+    return aligneddata
 
 
 def normalizeTrace(trace, traceFrames, samplingfreq, sToZero, normwindow):
@@ -94,12 +92,12 @@ def normalizeTrace(trace, traceFrames, samplingfreq, sToZero, normwindow):
     '''
     # subtract the baseline
     subTrace = translateTrace(trace, traceFrames, samplingfreq, sToZero)
-    
+
     # normalize
     # divide by the minimum of the values within a time window
-    norFrames = np.logical_and(traceFrames>normwindow[0], traceFrames<normwindow[1])
-    normTrace = subTrace/abs(min(subTrace[norFrames]))
-    
+    norFrames = np.logical_and(traceFrames > normwindow[0], traceFrames < normwindow[1])
+    normTrace = subTrace / abs(min(subTrace[norFrames]))
+
     return normTrace
 
 
@@ -116,8 +114,8 @@ def translateTrace(trace, traceFrames, samplingfreq, sToZero):
     # subtract the baseline
     # calculate how many time events (frames) that is
     subFrames = int(math.floor(sToZero * samplingfreq.base))
-    subTrace = trace - np.mean(trace[traceFrames<0][-subFrames:])
-    
+    subTrace = trace - np.mean(trace[traceFrames < 0][-subFrames:])
+
     return subTrace
 
 
@@ -131,7 +129,7 @@ def parseTitlesForDates(expTitles):
     for title in expTitles:
         match = re.search(r'\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}', title)
         dates.append(match.group())
-        
+
     return dates
 
 
@@ -154,24 +152,24 @@ def timeDifferences(listOfDates):
     '''
     Return the absolute time, in days, of elements in a list of dates, related to the first
     :param listOfDates: list of size X of dates. Format: YYYY-MM-DD_HH-MM-SS
-    :return: array of size X of absolute time 
+    :return: array of size X of absolute time
     '''
     abstimeList = []
     for date in listOfDates:
         strList = re.split('_|-', date)
         intList = list(map(int, strList))
         # Calculate absolute time in days
-        
-        multipliers = [365, 30 ,1 ,1/24 ,1/(24*60), 1/(24*60*60)]
-        mulList = [a*b for a,b in zip(intList,multipliers)]
+
+        multipliers = [365, 30, 1, 1 / 24, 1 / (24 * 60), 1 / (24 * 60 * 60)]
+        mulList = [a * b for a, b in zip(intList, multipliers)]
         abstime = sum(mulList)
         abstimeList.append(abstime)
-        
+
     diftime = np.array(abstimeList) - abstimeList[0]
-    
+
     return diftime
-               
-       
+
+
 def butter_bandpass(lowcut, highcut, fs, order=5, btype='band'):
     nyq = 0.5 * fs
     low = lowcut / nyq
@@ -198,8 +196,9 @@ def update_progress(progress):
     if progress >= 1:
         progress = 1
     block = int(round(bar_length * progress))
-    clear_output(wait = True)
-    text = "Progress: [{0}] {1:.1f}%".format( "#" * block + "-" * (bar_length - block), progress * 100)
+    clear_output(wait=True)
+    text = "Progress: [{0}] {1:.1f}%".format("#" * block + "-" * (bar_length - block),
+                                             progress * 100)
     print(text)
 
 
@@ -210,7 +209,7 @@ def scatterplot_matrix(data, names, **kwargs):
     passed on to matplotlib's "plot" command. Returns the matplotlib figure
     object containg the subplot grid."""
     numvars, numdata = data.shape
-    fig, axes = plt.subplots(nrows=numvars, ncols=numvars, figsize=(17,17))
+    fig, axes = plt.subplots(nrows=numvars, ncols=numvars, figsize=(17, 17))
     fig.subplots_adjust(hspace=0.05, wspace=0.05)
 
     for ax in axes.flat:
@@ -230,29 +229,81 @@ def scatterplot_matrix(data, names, **kwargs):
 
     # Plot the data.
     for i, j in zip(*np.triu_indices_from(axes, k=1)):
-        for x, y in [(i,j), (j,i)]:
-            axes[x,y].plot(data[x], data[y], **kwargs)
-            
+        for x, y in [(i, j), (j, i)]:
+            axes[x, y].plot(data[x], data[y], **kwargs)
+
             # Create linear regression object
             regr = linear_model.LinearRegression()
             # Train the model using the training sets
             regr.fit(pd.DataFrame(data[x]), pd.DataFrame(data[y]))
             # Make predictions using the testing set
-            #x_pred = pd.DataFrame(np.arange(min(data[x]), max(data[x]), (max(data[x])-min(data[x]))/100))
+            # x_pred = pd.DataFrame(np.arange(min(data[x]), max(data[x]),
+            # (max(data[x])-min(data[x])) / 100))
             x_pred = pd.DataFrame(data[x])
-            y_pred = regr.predict(x_pred)            
-            axes[x,y].plot(x_pred, y_pred, '-')
+            y_pred = regr.predict(x_pred)
+            axes[x, y].plot(x_pred, y_pred, '-')
             # The r2 score
-            axes[x,y].text(0.1, 0.2, np.corrcoef(data[x], data[y])[1][0], transform=axes[x,y].transAxes, color = 'blue')
-            axes[x,y].text(0.1, 0.1, r2_score(data[y], y_pred), transform=axes[x,y].transAxes, color = 'blue')
+            axes[x, y].text(0.1, 0.2, np.corrcoef(data[x], data[y])[1][0],
+                            transform=axes[x, y].transAxes, color='blue')
+            axes[x, y].text(0.1, 0.1, r2_score(data[y], y_pred),
+                            transform=axes[x, y].transAxes, color='blue')
     # Label the diagonal subplots...
     for i, label in enumerate(names):
-        axes[i,i].annotate(label, (0.5, 0.5), xycoords='axes fraction',
-                ha='center', va='center')
+        axes[i, i].annotate(label, (0.5, 0.5), xycoords='axes fraction',
+                            ha='center', va='center')
 
     # Turn on the proper x or y axes ticks.
     for i, j in zip(range(numvars), itertools.cycle((-1, 0))):
-        axes[j,i].xaxis.set_visible(True)
-        axes[i,j].yaxis.set_visible(True)
+        axes[j, i].xaxis.set_visible(True)
+        axes[i, j].yaxis.set_visible(True)
 
     return fig
+
+
+# function to get TTLs by channel
+def getTTLs(recEvent):
+    # this function identifies how many different digital inputs are in the recording
+    # the output is a list of arrays containing TTL times for each input channel, in order
+    # recEvent is an object from pyopenephys (e.g. OEfile.experiments[0].recordings[0].events)
+    try:
+        channels = recEvent.channels
+        times = recEvent.times
+    except AttributeError:
+        print('Please pass a proper event...')
+        return
+
+    # unique channels
+    channelValues = np.sort(pd.unique(channels))
+    # make an empty list
+    timesList = []
+    # find the times associated to each channel and append
+
+    for cV in channelValues:
+        cVtimes = times[channels == cV]
+        timesList.append(cVtimes)
+
+    return timesList
+
+
+def alignSpikes(spikes, aligntimes, interval):
+    """
+    Get a list of spike events aligned to some time, spanning an interval
+    :param spikes: list of 1D arrays, each of whatever size, indicating time events (e.g. spikes)
+    :param aligntimes: time events to align to
+    :param interval: list of two elements with limits defining
+    the length of the aligned traces. In seconds.
+    :return: list of size 'spikes' of lists of size aligntimes, containing aligned times.
+    """
+
+    AlignedSpikes = [None] * len(spikes)
+
+    for i, Channel in enumerate(spikes):
+        ChannelSpikes = [None] * len(aligntimes)
+        for j, timeToAlign in enumerate(aligntimes):
+            spikesInWindow = Channel[np.logical_and(Channel >= (timeToAlign.item() - interval[0]),
+                                                    Channel <= (timeToAlign.item() + interval[1]))]
+            ChannelSpikes[j] = spikesInWindow - timeToAlign
+
+        AlignedSpikes[i] = ChannelSpikes
+
+    return AlignedSpikes
