@@ -268,7 +268,7 @@ def getTTLs(recEvent):
     try:
         channels = recEvent.channels
         times = recEvent.times
-    except AttributeError:
+    except Exception:
         print('Please pass a proper event...')
         return
 
