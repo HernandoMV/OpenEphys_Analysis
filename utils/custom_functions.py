@@ -22,6 +22,9 @@ def getFirstPulses(pulsevector, timedif):
     :param timedif: float or int defining the time separation condition
     :return: 1D array of time stamps.
     """
+    # if pulsevector is empty return an empty array
+    if len(pulsevector) == 0:
+        return np.empty(0)
     # calculate the difference between elements
     difvector = [j - i for i, j in zip(pulsevector[:-1], pulsevector[1:])]
     # add a 'fake' one at the beginning to compensate for the reduction of elements
