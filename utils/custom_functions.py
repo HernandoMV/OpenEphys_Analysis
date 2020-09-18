@@ -12,7 +12,7 @@ from sklearn import linear_model
 import pandas as pd
 from sklearn.metrics import r2_score
 import matplotlib.pylab as plt
-
+import socket
 
 def getFirstPulses(pulsevector, timedif):
     """
@@ -22,6 +22,9 @@ def getFirstPulses(pulsevector, timedif):
     :param timedif: float or int defining the time separation condition
     :return: 1D array of time stamps.
     """
+    # if pulsevector is empty return an empty array
+    if len(pulsevector) == 0:
+        return np.empty(0)
     # calculate the difference between elements
     difvector = [j - i for i, j in zip(pulsevector[:-1], pulsevector[1:])]
     # add a 'fake' one at the beginning to compensate for the reduction of elements
@@ -307,3 +310,19 @@ def alignSpikes(spikes, aligntimes, interval):
         AlignedSpikes[i] = ChannelSpikes
 
     return AlignedSpikes
+
+
+DATA_FOLDER_PATHS = {
+    'nailgun': '/home/hernandom/data/Ephys_data/invitro/OEdata/',
+    'HMVergara-Laptop': '/mnt/c/Users/herny/Desktop/SWC/Data/Ephys_data/invitro/OEdata/'
+}
+
+def get_data_folder():
+    """
+    Selects data folder depending on computer name
+    """
+    computer_name = socket.gethostname()
+    try:
+        return DATA_FOLDER_PATHS[computer_name]
+    except KeyError:
+        raise KeyError(f"Unknown data path for computer {computer_name}.")
