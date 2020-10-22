@@ -314,7 +314,8 @@ def alignSpikes(spikes, aligntimes, interval):
 
 DATA_FOLDER_PATHS = {
     'nailgun': '/home/hernandom/data/Ephys_data/invitro/OEdata/',
-    'HMVergara-Laptop': '/mnt/c/Users/herny/Desktop/SWC/Data/Ephys_data/invitro/OEdata/'
+    'HMVergara-Laptop': '/mnt/c/Users/herny/Desktop/SWC/Data/Ephys_data/invitro/OEdata/',
+    'Mrsic-Flogel-PC': '/Users/kiosk/Desktop/AnalysisOnTheFly/'
 }
 
 def get_data_folder():
