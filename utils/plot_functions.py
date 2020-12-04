@@ -3,12 +3,13 @@
 # December 2020
 
 import numpy as np
+from matplotlib.lines import Line2D
 
 def plot_traces_on_probe(ax, intervalTimes, traces, idx, xcoords, ycoords,
                          normalized_slope,
                          x_scaler=1, y_scaler=1, points_to_plot=None,
                          timing_test=None, color='k', alpha=1, linewidth=1,
-                         include_electrode_numbers=False):
+                         include_electrode_numbers=False, new_label='None'):
     """
     TODO: this needs cleaning and add functionalities
 
@@ -27,6 +28,7 @@ def plot_traces_on_probe(ax, intervalTimes, traces, idx, xcoords, ycoords,
     # alpha: alpha of the trace
     # linewidth: width of the trace
     # include_electrode_numbers: boolean
+    # new_label: legend label
     """
 
     #plot a big circle in the back of each trace color-coded for the slope
@@ -53,6 +55,7 @@ def plot_traces_on_probe(ax, intervalTimes, traces, idx, xcoords, ycoords,
                 color = color,
                 alpha = alpha,
                 linewidth = linewidth)
+
     
         # plot the index of the electrodes, in colors depending on whether they pass the test above
         if include_electrode_numbers:
@@ -73,4 +76,9 @@ def plot_traces_on_probe(ax, intervalTimes, traces, idx, xcoords, ycoords,
                         marker = '.',
                         markersize = 10,
                         color = 'b')
-    return ax
+    # set the custom legend
+    #handles, labels = ax.get_legend_handles_labels()
+    new_handle = Line2D([0], [0], color=color, alpha=alpha, lw=linewidth)
+    #ax.legend(handles=np.append(handles, new_handle), labels=np.append(labels, new_label))
+
+    return ax, new_handle, new_label
